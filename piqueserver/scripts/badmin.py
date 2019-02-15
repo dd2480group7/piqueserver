@@ -28,7 +28,7 @@ from pyspades.collision import distance_3d_vector
 from piqueserver.commands import command, admin, get_player
 import re
 
-from piqueserver.scripts import logger
+import piqueserver.scripts.logger
 
 # TODO: convert settings to config options
 BADMIN_VERSION = 9

@@ -27,7 +27,7 @@ from pyspades.common import prettify_timespan
 from piqueserver.commands import command, admin, get_player
 from piqueserver.config import config
 
-from piqueserver.scripts import logger
+import piqueserver.scripts.logger
 
 blockinfo_config = config.section("blockinfo")
 GRIEFCHECK_ON_VOTEKICK = blockinfo_config.option("griefcheck_on_votekick", True)
