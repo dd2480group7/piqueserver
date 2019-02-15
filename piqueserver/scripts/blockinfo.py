@@ -27,6 +27,8 @@ from pyspades.common import prettify_timespan
 from piqueserver.commands import command, admin, get_player
 from piqueserver.config import config
 
+from piqueserver.scripts import logger
+
 blockinfo_config = config.section("blockinfo")
 GRIEFCHECK_ON_VOTEKICK = blockinfo_config.option("griefcheck_on_votekick", True)
 IRC_ONLY = blockinfo_config.option("irc_only", False)
@@ -39,49 +41,62 @@ def grief_check(connection, player, minutes=2):
     color = connection not in protocol.players and connection.colors
     minutes = float(minutes)
     if minutes <= 0.0:
+        logger.log("1")
         raise ValueError('minutes must be number greater than 0')
     time = seconds() - minutes * 60.0
     blocks_removed = player.blocks_removed or []
     blocks = [b[1] for b in blocks_removed if b[0] >= time]
     player_name = player.name
     if color:
+        logger.log("2")
         player_name = (('\x0303' if player.team.id else '\x0302') +
                        player_name + '\x0f')
     message = '%s removed %s block%s in the last ' % (
         player_name, len(blocks) or 'no', '' if len(blocks) == 1 else 's')
     if minutes == 1.0:
+        logger.log("3")
         minutes_s = 'minute'
     else:
+        logger.log("4")
         minutes_s = '{:.1f} minutes'.format(minutes)
     message += minutes_s + '.'
     if len(blocks):
+        logger.log("5")
         infos = set(blocks)
         infos.discard(None)
         if color:
+            logger.log("6")
             names = [('\x0303' if team else '\x0302') + name for name, team in
                      infos]
         else:
+            logger.log("7")
             names = set([name for name, team in infos])
         if len(names) > 0:
+            logger.log("8")
             message += (' Some of them were placed by ' +
                         ('\x0f, ' if color else ', ').join(names))
             message += '\x0f.' if color else '.'
         else:
+            logger.log("9")
             message += ' All of them were map blocks.'
         last = blocks_removed[-1]
         time_s = prettify_timespan(seconds() - last[0], get_seconds=True)
         message += ' Last one was destroyed %s ago' % time_s
         whom = last[1]
         if whom is None and len(names) > 0:
+            logger.log("10")
             message += ', and was part of the map'
         elif whom is not None:
+            logger.log("11")
             name, team = whom
             if color:
+                logger.log("12")
                 name = ('\x0303' if team else '\x0302') + name + '\x0f'
             message += ', and belonged to %s' % name
         message += '.'
     switch_sentence = False
     if player.last_switch is not None and player.last_switch >= time:
+        logger.log("13")
         time_s = prettify_timespan(seconds() - player.last_switch,
                                    get_seconds=True)
         message += ' %s joined %s team %s ago' % (player_name,
@@ -89,13 +104,16 @@ def grief_check(connection, player, minutes=2):
         switch_sentence = True
     teamkills = len([t for t in player.teamkill_times or [] if t >= time])
     if teamkills > 0:
+        logger.log("14")
         s = ', and killed' if switch_sentence else ' %s killed' % player_name
         message += s + ' %s teammates in the last %s' % (teamkills, minutes_s)
     if switch_sentence or teamkills > 0:
+        logger.log("15")
         message += '.'
     votekick = getattr(protocol, 'votekick', None)
     if (votekick and votekick.victim is player and
             votekick.victim.world_object and votekick.instigator.world_object):
+        logger.log("16")
         instigator = votekick.instigator
         tiles = int(distance_3d_vector(player.world_object.position,
                                        instigator.world_object.position))
@@ -103,6 +121,7 @@ def grief_check(connection, player, minutes=2):
                            instigator.name + '\x0f')
         message += (' %s is %d tiles away from %s, who started the votekick.' %
                     (player_name, tiles, instigator_name))
+    logger.log("17")
     return message
 
 
