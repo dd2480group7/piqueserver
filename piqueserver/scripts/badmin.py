@@ -1,5 +1,5 @@
 """
-Badmin is an bot admin. 
+Badmin is an bot admin.
 
 It automates common admin tasks such as:
 
@@ -27,6 +27,8 @@ from pyspades.constants import *
 from pyspades.collision import distance_3d_vector
 from piqueserver.commands import command, admin, get_player
 import re
+
+from piqueserver.scripts import logger
 
 # TODO: convert settings to config options
 BADMIN_VERSION = 9
@@ -101,6 +103,7 @@ def score_grief(connection, player, time=None):  # 302 = blue (0), #303 = green 
     color = connection not in connection.protocol.players and connection.colors
     minutes = float(time or 2)
     if minutes < 0.0:
+        logger.log("1")
         raise ValueError()
     time = reactor.seconds() - minutes * 60.0
     blocks_removed = player.blocks_removed or []
@@ -116,66 +119,90 @@ def score_grief(connection, player, time=None):  # 302 = blue (0), #303 = green 
     enemy_harmed = 0
     print("init values set")
     if len(blocks):
+        logger.log("2")
         print("len blocks = true, blocks found")
         total_blocks = len(blocks)
         info = blocks
         for info in blocks:
+            logger.log("3")
             if info:
+                logger.log("4")
                 name, team = info
                 if name != player_name and team == team_id:
+                    logger.log("5")
                     team_blocks += 1
                 elif team != team_id:
+                    logger.log("6")
                     enemy_blocks += 1
             else:
+                logger.log("7")
                 map_blocks += 1
         print("second for done")
         infos = set(blocks)
         infos.discard(None)
         for name, team in infos:
+            logger.log("8")
             if name != player_name and team == team_id:
+                logger.log()
                 team_harmed += 1
             elif team != team_id:
+                logger.log("9")
                 enemy_harmed += 1
         print("third for done")
     else:
+        logger.log("10")
         print("len blocks = false, no blocks found")
         total_blocks = 0
 
     # heuristic checks start here
     # if they didn't break any blocks at all, they probably aren't griefing.
     if total_blocks == 0:
+        logger.log("11")
         print("no blocks, ending")
         return 0
     # checks on team blocks destroyed
     if team_blocks > 0 and team_blocks <= 5:
+        logger.log("12")
         gscore += 1
     elif team_blocks > 5 and team_blocks <= 10:
+        logger.log("13")
         gscore += 2
     elif team_blocks > 10 and team_blocks <= 25:
+        logger.log("14")
         gscore += 4
     elif team_blocks > 25 and team_blocks <= 50:
+        logger.log("15")
         gscore += 6
     elif team_blocks > 50:
+        logger.log("16")
         gscore += 10
     print("team blocks set")
     # team / total ratio checks
     if total_blocks != 0:
+        logger.log("17")
         ttr = (float(team_blocks) / float(total_blocks)) * 100
     if ttr > 5 and ttr <= 20:
+        logger.log("18")
         gscore += 1
     elif ttr > 20 and ttr <= 50:
+        logger.log("19")
         gscore += 2
     elif ttr > 50 and ttr <= 80:
+        logger.log("20")
         gscore += 3
     elif ttr > 80:
+        logger.log("21")
         gscore += 4
     print("ttr set")
     # teammates harmed check
     if team_harmed == 1:
+        logger.log("22")
         gscore += 1
     elif team_harmed > 2 and team_harmed <= 4:
+        logger.log("23")
         gscore += 3
     elif team_harmed > 4:
+        logger.log("24")
         gscore += 6
     print("team harmed set")
     print(
@@ -188,6 +215,7 @@ def score_grief(connection, player, time=None):  # 302 = blue (0), #303 = green 
          ttr,
          enemy_harmed,
          gscore))
+    logger.log("25")
     return gscore
 
 
