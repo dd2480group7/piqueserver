@@ -29,6 +29,8 @@ from pyspades.weapon import WEAPONS
 from pyspades.mapgenerator import ProgressiveMapGenerator
 from piqueserver.config import config
 
+import piqueserver.scripts.logger
+
 log = Logger()
 # distance the server tolerates between the place it thinks the client is to where the client actually is.
 rubberband_distance = config.option('rubberband_distance', default=10)
@@ -311,24 +313,29 @@ class ServerConnection(BaseConnection):
     @register_packet_handler(loaders.InputData)
     def on_input_data_recieved(self, contained: loaders.InputData) -> None:
         if not self.hp:
+            logger.log("1")
             return
         world_object = self.world_object
         returned = self.on_walk_update(contained.up, contained.down,
                                        contained.left, contained.right)
         if returned is not None:
+            logger.log("2")
             up, down, left, right = returned
             if (up != contained.up or down != contained.down or
                     left != contained.left or right != contained.right):
+                logger.log("3")
                 (contained.up, contained.down, contained.left,
                     contained.right) = returned
                 # XXX unsupported
                 # self.send_contained(contained)
         if not self.freeze_animation:
+            logger.log("4")
             world_object.set_walk(contained.up, contained.down,
                                   contained.left, contained.right)
         contained.player_id = self.player_id
         z_vel = world_object.velocity.z
         if contained.jump and not (z_vel >= 0 and z_vel < 0.017):
+            logger.log("5")
             contained.jump = False
         # XXX unsupported for now
         # returned = self.on_animation_update(contained.primary_fire,
@@ -347,17 +354,21 @@ class ServerConnection(BaseConnection):
             contained.jump, contained.crouch, contained.sneak,
             contained.sprint)
         if returned is not None:
+            logger.log("6")
             jump, crouch, sneak, sprint = returned
             if (jump != contained.jump or crouch != contained.crouch or
                     sneak != contained.sneak or sprint != contained.sprint):
+                logger.log("7")
                 (contained.jump, contained.crouch, contained.sneak,
                     contained.sprint) = returned
                 self.send_contained(contained)
         if not self.freeze_animation:
+            logger.log("8")
             world_object.set_animation(
                 contained.jump, contained.crouch, contained.sneak,
                 contained.sprint)
         if self.filter_visibility_data or self.filter_animation_data:
+            logger.log("9")
             return
         self.protocol.send_contained(contained, sender=self)
 
