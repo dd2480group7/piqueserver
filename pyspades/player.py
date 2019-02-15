@@ -242,52 +242,70 @@ class ServerConnection(BaseConnection):
     @register_packet_handler(loaders.PositionData)
     def on_position_update_recieved(self, contained: loaders.PositionData) -> None:
         if not self.hp:
+            logger.log("1")
             return
         current_time = reactor.seconds()
         last_update = self.last_position_update
         self.last_position_update = current_time
         if last_update is not None:
+            logger.log("2")
             dt = current_time - last_update
             if dt < MAX_POSITION_RATE:
+                logger.log("3")
                 self.set_location()
                 return
         x, y, z = contained.x, contained.y, contained.z
         if check_nan(x, y, z):
+            logger.log("4")
             self.on_hack_attempt(
                 'Invalid position data received')
             return
         if not self.check_speedhack(x, y, z):
+            logger.log("5")
             # vanilla behaviour
             self.set_location()
             return
         if not self.freeze_animation:
+            logger.log("6")
             self.world_object.set_position(x, y, z)
             self.on_position_update()
         if self.filter_visibility_data:
+            logger.log("7")
             return
         game_mode = self.protocol.game_mode
         if game_mode == CTF_MODE:
+            logger.log("8")
             other_flag = self.team.other.flag
             if vector_collision(self.world_object.position,
                                 self.team.base):
+                logger.log("9")
                 if other_flag.player is self:
+                    logger.log("10")
                     self.capture_flag()
                 self.check_refill()
             if other_flag.player is None and vector_collision(
                     self.world_object.position, other_flag):
+                logger.log("11")
                 self.take_flag()
         elif game_mode == TC_MODE:
+            logger.log("12")
             for entity in self.protocol.entities:
+                logger.log("13")
                 collides = vector_collision(
                     entity, self.world_object.position, TC_CAPTURE_DISTANCE)
                 if self in entity.players:
+                    logger.log("14")
                     if not collides:
+                        logger.log("15")
                         entity.remove_player(self)
                 else:
+                    logger.log("16")
                     if collides:
+                        logger.log("17")
                         entity.add_player(self)
                 if collides and vector_collision(entity,
                                                  self.world_object.position):
+                    logger.log("18")
                     self.check_refill()
 
     @register_packet_handler(loaders.WeaponInput)
