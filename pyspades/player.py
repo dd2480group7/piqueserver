@@ -491,25 +491,33 @@ class ServerConnection(BaseConnection):
     def on_block_action_recieved(self, contained: loaders.BlockAction) -> None:
         world_object = self.world_object
         if not self.hp:
+            logger.log("1")
             return
         value = contained.value
         if value == BUILD_BLOCK:
+            logger.log("2")
             interval = TOOL_INTERVAL[BLOCK_TOOL]
         elif self.tool == WEAPON_TOOL:
+            logger.log("3")
             if self.weapon_object.is_empty():
+                logger.log("4")
                 return
             interval = WEAPON_INTERVAL[self.weapon]
         else:
+            logger.log("5")
             interval = TOOL_INTERVAL[self.tool]
         current_time = reactor.seconds()
         last_time = self.last_block
         self.last_block = current_time
         if (self.rapid_hack_detect and last_time is not None and
                 current_time - last_time < interval):
+            logger.log("6")
             self.rapids.add(current_time)
             if self.rapids.check():
+                logger.log("7")
                 start, end = self.rapids.get()
                 if end - start < MAX_RAPID_SPEED:
+                    logger.log("8")
                     log.info('RAPID HACK:', self.rapids.window)
                     self.on_hack_attempt('Rapid hack detected')
             return
@@ -518,39 +526,54 @@ class ServerConnection(BaseConnection):
         y = contained.y
         z = contained.z
         if z >= 62:
+            logger.log("9")
             return
         if value == BUILD_BLOCK:
+            logger.log("10")
             self.blocks -= 1
             pos = world_object.position
             if self.blocks < -BUILD_TOLERANCE:
+                logger.log("11")
                 return
             elif not collision_3d(pos.x, pos.y, pos.z, x, y, z,
                                   MAX_BLOCK_DISTANCE):
+                logger.log("12")
                 return
             elif self.on_block_build_attempt(x, y, z) == False:
+                logger.log("13")
                 return
             elif not map.build_point(x, y, z, self.color):
+                logger.log("14")
                 return
             self.on_block_build(x, y, z)
         else:
+            logger.log("15")
             if not map.get_solid(x, y, z):
+                logger.log("16")
                 return
             pos = world_object.position
             if self.tool == SPADE_TOOL and not collision_3d(
                     pos.x, pos.y, pos.z, x, y, z, MAX_DIG_DISTANCE):
+                logger.log("17")
                 return
             if self.on_block_destroy(x, y, z, value) == False:
+                logger.log("18")
                 return
             elif value == DESTROY_BLOCK:
                 count = map.destroy_point(x, y, z)
+                logger.log("19")
                 if count:
+                    logger.log("20")
                     self.total_blocks_removed += count
                     self.blocks = min(50, self.blocks + 1)
                     self.on_block_removed(x, y, z)
             elif value == SPADE_DESTROY:
+                logger.log("21")
                 for xyz in ((x, y, z), (x, y, z + 1), (x, y, z - 1)):
+                    logger.log("22")
                     count = map.destroy_point(*xyz)
                     if count:
+                        logger.log("23")
                         self.total_blocks_removed += count
                         self.on_block_removed(*xyz)
             self.last_block_destroy = reactor.seconds()
