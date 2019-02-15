@@ -1099,40 +1099,52 @@ class ServerConnection(BaseConnection):
 
     def grenade_exploded(self, grenade: world.Grenade) -> None:
         if self.name is None or self.team.spectator:
+            logger.log("1")
             return
         if grenade.team is not None and grenade.team is not self.team:
             # could happen if the player changed team
+            logger.log("2")
             return
         position = grenade.position
         x = position.x
         y = position.y
         z = position.z
         if x < 0 or x > 512 or y < 0 or y > 512 or z < 0 or z > 63:
+            logger.log("3")
             return
         x = int(math.floor(x))
         y = int(math.floor(y))
         z = int(math.floor(z))
         for player_list in (self.team.other.get_players(), (self,)):
+            logger.log("4")
             for player in player_list:
+                logger.log("5")
                 if not player.hp:
+                    logger.log("6")
                     continue
                 damage = grenade.get_damage(player.world_object.position)
                 if damage == 0:
+                    logger.log("7")
                     continue
                 returned = self.on_hit(damage, player, GRENADE_KILL, grenade)
                 if returned == False:
+                    logger.log("8")
                     continue
                 elif returned is not None:
+                    logger.log("9")
                     damage = returned
                 player.set_hp(player.hp - damage, self,
                               hit_indicator=position.get(), kill_type=GRENADE_KILL,
                               grenade=grenade)
         if self.on_block_destroy(x, y, z, GRENADE_DESTROY) == False:
+            logger.log("10")
             return
         map = self.protocol.map
         for n_x, n_y, n_z in product(range(x - 1, x + 2), range(y - 1, y + 2), range(z - 1, z + 2)):
             count = map.destroy_point(n_x, n_y, n_z)
+            logger.log("11")
             if count:
+                logger.log("11")
                 self.total_blocks_removed += count
                 self.on_block_removed(n_x, n_y, n_z)
         block_action.x = x
