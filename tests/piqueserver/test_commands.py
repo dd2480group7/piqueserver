@@ -1,7 +1,7 @@
 from types import MethodType
 import unittest
 from unittest.mock import Mock
-from piqueserver.commands import command, _alias_map, get_team, get_player, get_truthy
+from piqueserver.commands import command, _alias_map, get_team, get_player, get_truthy, handle_command, CommandError, PermissionDenied
 
 
 class TestCommandDecorator(unittest.TestCase):
@@ -176,3 +176,71 @@ class TestUtilityFunctions(unittest.TestCase):
 
         for value in ["cats", "DOGS", "bIRDs", "DiNoSaUrS"]:
             self.assertEqual(get_truthy(value), None)
+
+    def test_handle_command(self):
+        """
+        Function being tested: piqueserver/commands.py:handle_command(BaseConnection connection,
+                                                                      str command, list parameters)
+
+        Inferred requirements:
+            Given a connection, the name of a command and optionally a set of parameter arguments,
+            verifies that 1) the command name exists, 2) the user (the connection) has permission to
+            execute the command and 3) the supplied number of parameters matches what is required by
+            the command.
+            
+            Once verified, the command is executed and returned is either the arbitrary result from
+            the command or one of the error strings.
+        """
+
+        ENOTFOUND = "Unknown command"
+        ENUMARGS = "Invalid number of arguments"
+        EPERMS = "You can't use this command"
+        EFAIL = "Command failed"
+
+        connection = self.setup()['connection']
+        connection.admin = False
+        connection.rights = []
+
+        self.assertEqual(handle_command(connection, "pteridologize", ()), ENOTFOUND)
+
+        # strange function names in an attempt at avoiding clashes with any existing commands
+        @command()
+        def pteridologize(connection, x, y, z):
+            return "pteridolog" + str(x) + str(y) + str(z)
+
+        @command(admin_only=True)
+        def incurvate(connection):
+            return "Incurvation complete"
+
+        @command()
+        def superduperconcat(connection, *args):
+            return "".join(args)
+
+        @command()
+        def you_are_not_allowed(connection, *args):
+            raise PermissionDenied("I'm sorry Dave, I'm afraid I can't do that.")
+
+        @command()
+        def create_an_error(connection, *args):
+            raise CommandError("I'm sorry Dave, I'm afraid I can't do that.")
+
+        # checks on number of arguments
+        self.assertEqual(handle_command(connection, "pteridologize", ()), ENUMARGS)
+        self.assertEqual(handle_command(connection, "pteridologize", ("i",)), ENUMARGS)
+        self.assertEqual(handle_command(connection, "pteridologize", ("i", "z")), ENUMARGS)
+        self.assertEqual(handle_command(connection, "pteridologize", ("i", "z", "e")), "pteridologize")
+        self.assertEqual(handle_command(connection, "pteridologize", ("i", "z", "e", "s")), ENUMARGS)
+
+        # handling of variable-length arguments
+        self.assertEqual(handle_command(connection, "superduperconcat", ()), "")
+        self.assertEqual(handle_command(connection, "superduperconcat", ("a",)), "a")
+        self.assertEqual(handle_command(connection, "superduperconcat", ("a","b","c","d","e")), "abcde")
+
+        # permission check
+        self.assertEqual(handle_command(connection, "incurvate", ()), EPERMS)
+        connection.admin = True
+        self.assertEqual(handle_command(connection, "incurvate", ()), "Incurvation complete")
+
+        # functions that throw module-specific exceptions
+        self.assertEqual(handle_command(connection, "you_are_not_allowed", ()), EPERMS)
+        self.assertEqual(handle_command(connection, "create_an_error", ()), "I'm sorry Dave, I'm afraid I can't do that.")

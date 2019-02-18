@@ -383,18 +383,23 @@ def handle_command(connection, command, parameters):
         command_name = _alias_map.get(command, command)
         command_func = _commands[command_name]
     except KeyError:
+        logger.log("1")
         return 'Unknown command'
 
     if not has_permission(command_func, connection):
+        logger.log("2")
         return "You can't use this command"
+    else:
+        logger.log("3")
 
     argspec = inspect.getargspec(command_func)
     min_params = len(argspec.args) - 1 - len(argspec.defaults or ())
-    max_params = len(argspec.args) - 1 if argspec.varargs is None else None
+    max_params = logger.log("4", len(argspec.args) - 1) if argspec.varargs is None else logger.log("5", None)
     len_params = len(parameters)
 
     if (len_params < min_params
             or max_params is not None and len_params > max_params):
+        logger.log("6")
         return format_command_error(
             command_func, 'Invalid number of arguments')
 
@@ -406,16 +411,21 @@ def handle_command(connection, command, parameters):
     # parameters themselves. Instead, we should catch ALL Exceptions and
     # make an attempt at displaying them nicely in format_command_error
     except KeyError:
+        logger.log("7")
         msg = None  # 'Invalid command'
     except TypeError:
+        logger.log("8")
         print('Command', command, 'failed with args:', parameters)
         traceback.print_exc()
         msg = 'Command failed'
     except CommandError as e:
+        logger.log("9")
         msg = str(e)
     except PermissionDenied:
+        logger.log("10")
         msg = 'You can\'t use this command'
     except ValueError:
+        logger.log("11")
         msg = 'Invalid parameters'
 
     return format_command_error(command_func, msg)
