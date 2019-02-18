@@ -1,7 +1,7 @@
 from types import MethodType
 import unittest
 from unittest.mock import Mock
-from piqueserver.commands import command, _alias_map, get_team, get_player
+from piqueserver.commands import command, _alias_map, get_team, get_player, get_truthy
 
 
 class TestCommandDecorator(unittest.TestCase):
@@ -158,3 +158,21 @@ class TestUtilityFunctions(unittest.TestCase):
         self.assertEqual(get_player(connection.protocol, "viggo").name, "viggo")
         self.assertRaises(Exception, get_player, connection.protocol, "viggo", False) # no such player when filtering out spectators
 
+    def test_get_truthy(self):
+        """
+        Function being tested: piqueserver/commands.py:get_truthy(str value)
+        
+        Inferred requirements:
+            Using case-insensitive matching, return True for a value that matches any of the
+            strings "yes", "y" or "on", return False for a value that matches any of the strings
+            "no", "n" or "off", for all other values return None
+        """
+
+        for value in ["yes", "YES", "Yes", "yES", "yEs", "y", "Y", "on", "ON", "On", "oN"]:
+            self.assertTrue(get_truthy(value))
+
+        for value in ["no", "NO", "No", "nO", "n", "N", "off", "OFF", "Off", "oFF", "oFf"]:
+            self.assertFalse(get_truthy(value))
+
+        for value in ["cats", "DOGS", "bIRDs", "DiNoSaUrS"]:
+            self.assertEqual(get_truthy(value), None)

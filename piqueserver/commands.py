@@ -367,10 +367,13 @@ def get_truthy(value):
     value = value.lower()
 
     if value in ("yes", "y", "on", 1):
+        logger.log("1")
         return True
     elif value in ("no", "n", "off", 0):
+        logger.log("2")
         return False
     else:
+        logger.log("3")
         return None
 
 
