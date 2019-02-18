@@ -65,7 +65,7 @@ class BaseConnectionTest(unittest.TestCase):
     def test_on_position_update_received1(self):
         ply = player.ServerConnection(Mock(), Mock())
         input_ply = contained.InputData()
-        self.asasertEqual(ply.on_position_update_recieved(input_ply), None)
+        self.assertEqual(ply.on_position_update_recieved(input_ply), None)
 
     #tests to set last_position_update to other than default value None
     def test_on_position_update_received2(self):
@@ -73,14 +73,14 @@ class BaseConnectionTest(unittest.TestCase):
         ply.world_object = Mock()
         ply.world_object.last_position_update = 1
         input_ply = contained.InputData()
-        self.assertFaslse(input_ply.last_update, None)  # Since we've updated position, this should be false.
+        self.assertFalse(input_ply.last_update, None)  # Since we've updated position, this should be false.
 
     #Inverse of above tests, last_position_update is None here
     def test_on_position_update_received3(self):
         ply = player.ServerConnection(Mock(), Mock())
         ply.world_object = Mock()
         input_ply = contained.InputData()
-        self.assertTrue(input_ply.last_update, None)  # Since we've not updated position, this should be true.
+        self.assertEqual(input_ply.last_update, None)  # Since we've not updated position, this should be equal.
 
 
 
