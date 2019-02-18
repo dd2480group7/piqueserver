@@ -264,39 +264,56 @@ def get_player(protocol, value: str, spectators=True):
     player_obj = None
     try:
         if value.startswith('#'):
+            logger.log("1")
             value = int(value[1:])
             player_obj = protocol.players[value]
         else:
+            logger.log("2")
             players = protocol.players
             try:
                 player_obj = players[value]
             except KeyError:
+                logger.log("3")
                 value = value.lower()
                 matches = []
                 for player in players.values():
+                    logger.log("4")
                     name = player.name.lower()
                     if name == value:
+                        logger.log("5")
                         # if the playername matches, we want to return directly, otherwise
                         # you would not be able to kick players who's name is a subset of
                         # another players name
                         return player
+                    else:
+                        logger.log("6")
                     if name.count(value):
+                        logger.log("7")
                         matches.append(player)
-
+                    else:
+                        logger.log("8")
                 if len(matches) > 1:
+                    logger.log("9")
                     # more than one player matched
                     raise CommandError("Ambiguous player")
                 elif len(matches) == 1:
+                    logger.log("10")
                     player_obj = matches[0]
                 else:
+                    logger.log("11")
                     # no Players were found
                     player_obj = None
     except (KeyError, IndexError, ValueError):
+        logger.log("12")
         pass
     if player_obj is None:
+        logger.log("13")
         raise CommandError("Invalid Player")
     elif not spectators and player_obj.world_object is None:
+        logger.log("14")
         raise CommandError("Invalid Spectator")
+    else:
+        logger.log("15")
     return player_obj
 
 
