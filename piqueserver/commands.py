@@ -27,6 +27,8 @@ from typing import Dict, List, Callable
 
 from pyspades.player import parse_command
 
+import piqueserver.scripts.logger as logger
+
 _commands = {}
 _alias_map = {}
 _rights = {}  # type: Dict[str, List[str]]
@@ -304,17 +306,26 @@ def get_team(connection, value):
     team_2 = connection.protocol.team_2
     team_spectator = connection.protocol.team_spectator
     if value == team_1.name.lower():
+        logger.log("1")
         return connection.protocol.team_1
     elif value == team_2.name.lower():
+        logger.log("2")
         return connection.protocol.team_2
     elif value == team_spectator.name.lower():
+        logger.log("3")
         return connection.protocol.spectator_team
     elif value == '1':
+        logger.log("4")
         return connection.protocol.team_1
     elif value == '2':
+        logger.log("5")
         return connection.protocol.team_2
     elif value == 'spec':
+        logger.log("6")
         return connection.protocol.spectator_team
+    else:
+        logger.log("7")
+
     raise ValueError('Invalid Team')
 
 
