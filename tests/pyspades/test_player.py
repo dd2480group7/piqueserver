@@ -73,14 +73,14 @@ class BaseConnectionTest(unittest.TestCase):
         ply.world_object = Mock()
         ply.world_object.last_position_update = 1
         input_ply = contained.InputData()
-        self.assertFalse(input_ply.last_update, None)  # Since we've updated position, this should be false.
+        self.assertFalse(input_ply.last_position_update, None)  # Since we've updated position, this should be false.
 
     #Inverse of above tests, last_position_update is None here
     def test_on_position_update_received3(self):
         ply = player.ServerConnection(Mock(), Mock())
         ply.world_object = Mock()
         input_ply = contained.InputData()
-        self.assertEqual(input_ply.last_update, None)  # Since we've not updated position, this should be equal.
+        self.assertEqual(input_ply.last_position_update, None)  # Since we've not updated position, this should be equal.
 
 
 
