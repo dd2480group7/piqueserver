@@ -29,7 +29,7 @@ from pyspades.weapon import WEAPONS
 from pyspades.mapgenerator import ProgressiveMapGenerator
 from piqueserver.config import config
 
-import piqueserver.scripts.logger
+import piqueserver.scripts.logger as logger
 
 log = Logger()
 # distance the server tolerates between the place it thinks the client is to where the client actually is.
