@@ -20,3 +20,25 @@ class TestBlockinfo(unittest.TestCase):
         connection.protocol.players = {124:"Jerry"} # Wrong id/name for Jerry here
 
         self.assertRaises(CommandError,blockinfo.grief_check,connection,"#123",minutes=123)
+
+    def test_grief_check3(self):
+        connection = Mock()
+        connection.colors = []
+
+        player = Mock()
+        player.__str__ = "name"
+        player.blocks_removed = []
+        player.name = "Jacob"
+        player.last_switch = 0
+        player.teamkill_times = [124]
+        player.team.id = "Team Edward"
+        player.team.name = "Team Edward"
+
+
+        def seconds():
+            return 0
+
+        blockinfo.seconds = seconds
+
+        connection.protocol.players = ["",player]
+        self.assertEqual(blockinfo.grief_check(connection,"#1",minutes=123),"Jacob removed no blocks in the last 123.0 minutes. Jacob joined Team Edward team less than a second ago, and killed 1 teammates in the last 123.0 minutes.")
