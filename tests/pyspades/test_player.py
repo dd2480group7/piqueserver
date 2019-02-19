@@ -162,13 +162,11 @@ class BaseConnectionTest(unittest.TestCase):
             ply.world_object.Vertex3(*(1,2,3)),None,
             ply.world_object.Vertex3(*(0,0,1)), False)
 
-        self.assertEqual(ply.grenade_exploded(grenade), None) # No name set.
+        self.assertEqual(ply.grenade_exploded(grenade), None) # No name set. This is a condition for a branch
 
     def test_grenade_exploded2(self):
         ply = player.ServerConnection(Mock(), Mock())
         ply.world_object = Mock()
-        #grenade= Mock()
-
         grenade = ply.world_object.create_object(
             ply.world_object.world.Grenade, ply.world_object.value,
             ply.world_object.Vertex3(*(1,2,3)),None,
@@ -177,7 +175,7 @@ class BaseConnectionTest(unittest.TestCase):
         ply.name = "Erik"
         ply.team = "DIF"
         ply.team = Mock()
-        ply.team.spectator = False
+        ply.team.spectator = False #Should get a better branch coverage, since this is a condition met in player.py
         grenade.position.x = 1
         grenade.position.y = 1
         grenade.position.z = 1
