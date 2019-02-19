@@ -160,19 +160,8 @@ class BaseConnectionTest(unittest.TestCase):
             ply.world_object.world.Grenade, ply.world_object.value,
             ply.world_object.Vertex3(*(1,2,3)),None,
             ply.world_object.Vertex3(*(0,0,1)), False)
-        #ply.world_object.grenade = 1
 
         self.assertEqual(ply.grenade_exploded(grenade), None) # No name set.
-
-       #ply.world_object.name = "Erik" #added name, so self.name is not none.
-        #ply.world_object.grenade.team = 2
-
-        #ply.world_object.team.spectator = "123"
-        #ply.world_object.set_team("abc")
-        #ply.world_object.team.spectator = False
-        #ply.world_object.set_team("bcd")
-
-        #self.assertEqual
 
     def test_grenade_exploded2(self):
         ply = player.ServerConnection(Mock(), Mock())
@@ -192,26 +181,3 @@ class BaseConnectionTest(unittest.TestCase):
         grenade.position.y = 1
         grenade.position.z = 1
         self.assertEqual(ply.grenade_exploded(grenade), None)
-
-        #ply.team.spectator = False
-
-    def test_grenade_exploded3(self):
-        ply = player.ServerConnection(Mock(), Mock())
-        ply.world_object = Mock()
-        #grenade= Mock()
-
-        grenade = ply.world_object.create_object(
-            ply.world_object.world.Grenade, ply.world_object.value,
-            ply.world_object.Vertex3(*(1,2,3)),None,
-            ply.world_object.Vertex3(*(0,0,1)), False)
-        ply.name = "Erik"
-        ply.team = Mock()
-        ply.team.spectator = False
-        grenade.team = Mock()
-        grenade.position.x = 1
-        grenade.position.y = 1
-        grenade.position.z = 1
-        self.assertEqual(ply.grenade_exploded(grenade), None)
-
-        #ply.team.spectator = False
-
