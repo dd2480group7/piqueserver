@@ -25,7 +25,6 @@ class BaseConnectionTest(unittest.TestCase):
             ex_ply = contained.ExistingPlayer()
             ex_ply.team = team.id
             ply.on_new_player_recieved(ex_ply)
-
             self.assertEqual(ply.team, team)
 
     def test_on_input_data_recieved1(self):
@@ -128,6 +127,7 @@ class BaseConnectionTest(unittest.TestCase):
         ply.world_object = Mock()
         ply.set_hp(10)
         ply.last_position_update = 1
+        ply.filter_visibility_data = True
         input_ply = contained.PositionData()
         ply.x = 1
         ply.y = 1
