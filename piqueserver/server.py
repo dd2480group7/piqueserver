@@ -343,19 +343,7 @@ class FeatureProtocol(ServerProtocol):
         self.respawn_time = respawn_time_option.get()
         self.respawn_waves = respawn_waves.get()
 
-        # since AoS only supports CTF and TC at a protocol level, we need to get
-        # the base game mode if we are using a custom game mode.
-        game_mode_name = game_mode.get()
-        if game_mode_name == 'ctf':
-            self.game_mode = CTF_MODE
-        elif game_mode.get() == 'tc':
-            self.game_mode = TC_MODE
-        elif self.game_mode not in [CTF_MODE, TC_MODE]:
-            raise ValueError(
-                'invalid game mode: custom game mode "{}" does not set '
-                'protocol.game_mode to one of TC_MODE or CTF_MODE. Are '
-                'you sure the thing you have specified is a game mode?'.format(
-                    game_mode_name))
+        self._set_game_mode(game_mode.get())
 
         self.game_mode_name = game_mode.get().split('.')[-1]
         self.team1_name = team1_name.get()[:9]
@@ -390,22 +378,9 @@ class FeatureProtocol(ServerProtocol):
             # TODO: make this configurable
             pyspades.debug.open_debug_log(
                 os.path.join(config.config_dir, 'debug.log'))
-        if ssh_enabled.get():
-            from piqueserver.ssh import RemoteConsole
-            self.remote_console = RemoteConsole(self)
-        irc = irc_options.get()
-        if irc.get('enabled', False):
-            from piqueserver.irc import IRCRelay
-            self.irc_relay = IRCRelay(self, irc)
-        if status_server_enabled.get():
-            from piqueserver.statusserver import StatusServerFactory
-            self.status_server = StatusServerFactory(self)
-        if ban_publish.get():
-            from piqueserver.banpublish import PublishServer
-            self.ban_publish = PublishServer(self, ban_publish_port.get())
-        if bans_urls.get():
-            from piqueserver import bansubscribe
-            self.ban_manager = bansubscribe.BanManager(self)
+
+        self._init_extensions()
+
         self.start_time = reactor.seconds()
         self.end_calls = []
         # TODO: why is this here?
@@ -440,6 +415,38 @@ class FeatureProtocol(ServerProtocol):
         self.vacuum_loop.start(60 * 60 * 6, True)
 
         reactor.addSystemEventTrigger('before', 'shutdown', self.shutdown)
+
+    def _init_extensions(self):
+        if ssh_enabled.get():
+            from piqueserver.ssh import RemoteConsole
+            self.remote_console = RemoteConsole(self)
+        irc = irc_options.get()
+        if irc.get('enabled', False):
+            from piqueserver.irc import IRCRelay
+            self.irc_relay = IRCRelay(self, irc)
+        if status_server_enabled.get():
+            from piqueserver.statusserver import StatusServerFactory
+            self.status_server = StatusServerFactory(self)
+        if ban_publish.get():
+            from piqueserver.banpublish import PublishServer
+            self.ban_publish = PublishServer(self, ban_publish_port.get())
+        if bans_urls.get():
+            from piqueserver import bansubscribe
+            self.ban_manager = bansubscribe.BanManager(self)
+
+    def _set_game_mode(self, game_mode_name):
+        # since AoS only supports CTF and TC at a protocol level, we need to get
+        # the base game mode if we are using a custom game mode.
+        if game_mode_name == 'ctf':
+            self.game_mode = CTF_MODE
+        elif game_mode.get() == 'tc':
+            self.game_mode = TC_MODE
+        elif self.game_mode not in [CTF_MODE, TC_MODE]:
+            raise ValueError(
+                'invalid game mode: custom game mode "{}" does not set '
+                'protocol.game_mode to one of TC_MODE or CTF_MODE. Are '
+                'you sure the thing you have specified is a game mode?'.format(
+                    game_mode_name))
 
     def _post_init(self):
         """called after the map has been loaded"""
