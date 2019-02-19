@@ -27,6 +27,7 @@ class BaseConnectionTest(unittest.TestCase):
             ply.on_new_player_recieved(ex_ply)
             self.assertEqual(ply.team, team)
 
+    #testing if Hp is none as well as the change of jump dependent on velocity
     def test_on_input_data_recieved1(self):
         ply = player.ServerConnection(Mock(), Mock())
         input_cont = contained.InputData()
@@ -44,7 +45,7 @@ class BaseConnectionTest(unittest.TestCase):
         ply.on_input_data_recieved(input_cont)
         self.assertFalse(input_cont.jump) #should have changed to false due to velocity
 
-    #testing last return None
+     #testing filter visibility data
     def test_on_input_data_recieved2(self):
         ply = player.ServerConnection(Mock(), Mock())
         ply.filter_visibility_data = True
@@ -56,7 +57,7 @@ class BaseConnectionTest(unittest.TestCase):
         self.assertEqual(ply.on_input_data_recieved(input_cont), None)
 
 
-    #testing to build a block
+    #testing when hp is none and when a block is built. Placing a block results in player having fewer blocks
     def test_on_block_action_received1(self):
         ply = player.ServerConnection(Mock(), Mock())
         block_cont = contained.BlockAction()
@@ -76,7 +77,7 @@ class BaseConnectionTest(unittest.TestCase):
         self.assertEqual(ply.blocks, 9) #a block has been placed
 
 
-    #testing to destroy block
+    #testing to destroy block by two means, simple destroy as well as spade destroy
     def test_on_block_action_received2(self):
 
         def destroyA(x, y, z):
@@ -107,7 +108,7 @@ class BaseConnectionTest(unittest.TestCase):
         self.assertEqual(ply.total_blocks_removed, 6) #3 blocks destroyed with SPADE_DESTROY
         ply.protocol.map.destroy_point = destroyB
         ply.on_block_action_recieved(block_cont)
-        self.assertEqual(ply.total_blocks_removed, 6) #no block removed
+        self.assertEqual(ply.total_blocks_removed, 6) #no block removed due to map destroy point none
 
     # test1 in on position update recieved, Return None
     def test_on_position_update_received1(self):
