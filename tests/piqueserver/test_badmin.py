@@ -4,6 +4,7 @@ from unittest.mock import Mock
 
 
 class TestBadmin(unittest.TestCase):
+    # Requires time to be positive
     def test_score_grief1(self):
         connection = Mock()
         connection.colors = True
@@ -13,6 +14,7 @@ class TestBadmin(unittest.TestCase):
 
         self.assertRaises(ValueError,badmin.score_grief,connection,player,time=-10)
 
+    # Give grief score to player
     def test_score_grief2(self):
         connection = Mock()
         connection.colors = True
@@ -25,13 +27,17 @@ class TestBadmin(unittest.TestCase):
 
         self.assertEqual(0,badmin.score_grief(connection,player))
 
+    # Give grief score to player - blocks destroyed
     def test_score_grief3(self):
         connection = Mock()
         connection.colors = True
         connection.protocol.players = []
 
         player = Mock()
-        player.blocks_removed = [[110,None]]
+
+        block = ("Name",123)
+
+        player.blocks_removed = [[110,block]]
         player.name = "Jerry"
         player.team.id = 123
         badmin.reactor = Mock()
@@ -41,4 +47,4 @@ class TestBadmin(unittest.TestCase):
 
         badmin.reactor.seconds = returnZero
 
-        self.assertEqual(0,badmin.score_grief(connection,player,time=1))
+        self.assertEqual(6,badmin.score_grief(connection,player,time=1))

@@ -5,6 +5,7 @@ from unittest.mock import Mock
 
 
 class TestBlockinfo(unittest.TestCase):
+    # Requires positive time
     def test_grief_check1(self):
         connection = Mock()
         connection.colors = True
@@ -13,6 +14,7 @@ class TestBlockinfo(unittest.TestCase):
 
         self.assertRaises(ValueError,blockinfo.grief_check,connection,"#123",minutes=-10) # Minutes less than 0
 
+    # Player not found
     def test_grief_check2(self):
         connection = Mock()
         connection.colors = True
@@ -21,6 +23,7 @@ class TestBlockinfo(unittest.TestCase):
 
         self.assertRaises(CommandError,blockinfo.grief_check,connection,"#123",minutes=123)
 
+    # Requires admins to be able to audit grief
     def test_grief_check3(self):
         connection = Mock()
         connection.colors = []
