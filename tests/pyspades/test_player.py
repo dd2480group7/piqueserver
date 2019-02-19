@@ -150,24 +150,38 @@ class BaseConnectionTest(unittest.TestCase):
     def test_grenade_exploded(self):
         ply = player.ServerConnection(Mock(), Mock())
         ply.world_object = Mock()
-        ply.world_object.create_object()
+        #ply.world_object.create_object()
         ply.world_object.position.x = 1
         ply.world_object.position.y = 1
         ply.world_object.position.z = 1
         ply.world_object.velocity.x = 0
         ply.world_object.velocity.y = 0
         ply.world_object.velocity.z = 1
-        grenade = ply.world_object.protocol.world.create_object(
-            ply.world_object.world.Grenade, contained.value,
-            ply.world_object.Vertex3(*contained.position), None,
-            ply.world_object.Vertex3(*contained.velocity), ply.world_object.grenade_exploded)
-        ply.grenades = 1
-        ply.set_team(1)
-        ply.set_location(2)
-        self.assertEqual(ply.grenade_exploded(grenade), None) #No hp set.
-        ply.set_hp(10)
-        self.assertTrue(ply.grenade_exploded(grenade))
+        grenade = ply.world_object.create_object(
+            ply.world_object.world.Grenade, ply.world_object.value,
+            ply.world_object.Vertex3(*(1,2,3)),None,
+            ply.world_object.Vertex3(*(0,0,1)), False)
 
+        self.assertEqual(ply.grenade_exploded(grenade), None) # No name set.
+
+    def test_grenade_exploded2(self):
+        ply = player.ServerConnection(Mock(), Mock())
+        ply.world_object = Mock()
+        #grenade= Mock()
+
+        grenade = ply.world_object.create_object(
+            ply.world_object.world.Grenade, ply.world_object.value,
+            ply.world_object.Vertex3(*(1,2,3)),None,
+            ply.world_object.Vertex3(*(0,0,1)), False)
+        grenade.team = "test"
+        ply.name = "Erik"
+        ply.team = "DIF"
+        ply.team = Mock()
+        ply.team.spectator = False
+        grenade.position.x = 1
+        grenade.position.y = 1
+        grenade.position.z = 1
+        self.assertEqual(ply.grenade_exploded(grenade), None)
 
 
 
