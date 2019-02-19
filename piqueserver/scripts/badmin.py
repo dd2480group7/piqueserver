@@ -1,5 +1,5 @@
 """
-Badmin is an bot admin. 
+Badmin is an bot admin.
 
 It automates common admin tasks such as:
 
@@ -146,6 +146,24 @@ def score_grief(connection, player, time=None):  # 302 = blue (0), #303 = green 
     if total_blocks == 0:
         print("no blocks, ending")
         return 0
+
+    gscore,ttr = score_grief_score(team_blocks,total_blocks,team_harmed)
+
+    print("team harmed set")
+    print(
+        "mb: %s, tb: %s, eb: %s, Tb: %s, th: %s, ttr: %s, eh: %s, gs: %s" %
+        (map_blocks,
+         team_blocks,
+         enemy_blocks,
+         total_blocks,
+         team_harmed,
+         ttr,
+         enemy_harmed,
+         gscore))
+    return gscore
+
+def score_grief_score(team_blocks,total_blocks,team_harmed):
+    gscore = 0
     # checks on team blocks destroyed
     if team_blocks > 0 and team_blocks <= 5:
         gscore += 1
@@ -177,19 +195,7 @@ def score_grief(connection, player, time=None):  # 302 = blue (0), #303 = green 
         gscore += 3
     elif team_harmed > 4:
         gscore += 6
-    print("team harmed set")
-    print(
-        "mb: %s, tb: %s, eb: %s, Tb: %s, th: %s, ttr: %s, eh: %s, gs: %s" %
-        (map_blocks,
-         team_blocks,
-         enemy_blocks,
-         total_blocks,
-         team_harmed,
-         ttr,
-         enemy_harmed,
-         gscore))
-    return gscore
-
+    return gscore,ttr
 
 def check_percent(self):
     # TODO: uncomment this when you find out what/where semi_hits and
