@@ -477,19 +477,17 @@ class ServerConnection(BaseConnection):
                                      save=True)
 
     @register_packet_handler(loaders.BlockAction)
-    def on_block_action_recieved(self, contained: loaders.BlockAction) -> None:
-        world_object = self.world_object
-        if not self.hp:
-            return
+    def detect_rapid_hack(self, contained: loaders.BlockAction):
         value = contained.value
         if value == BUILD_BLOCK:
             interval = TOOL_INTERVAL[BLOCK_TOOL]
         elif self.tool == WEAPON_TOOL:
             if self.weapon_object.is_empty():
-                return
+                return True
             interval = WEAPON_INTERVAL[self.weapon]
         else:
             interval = TOOL_INTERVAL[self.tool]
+
         current_time = reactor.seconds()
         last_time = self.last_block
         self.last_block = current_time
@@ -501,7 +499,18 @@ class ServerConnection(BaseConnection):
                 if end - start < MAX_RAPID_SPEED:
                     log.info('RAPID HACK:', self.rapids.window)
                     self.on_hack_attempt('Rapid hack detected')
+            return True
+        return False
+
+    @register_packet_handler(loaders.BlockAction)
+    def on_block_action_recieved(self, contained: loaders.BlockAction) -> None:
+        world_object = self.world_object
+        if not self.hp:
             return
+        if self.detect_rapid_hack(contained):
+            return
+        value = contained.value
+
         map = self.protocol.map
         x = contained.x
         y = contained.y
