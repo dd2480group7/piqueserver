@@ -143,66 +143,66 @@ def score_grief(connection, player, time=None):  # 302 = blue (0), #303 = green 
         for name, team in infos:
             logger.log("8")
             if name != player_name and team == team_id:
-                logger.log()
+                logger.log("9")
                 team_harmed += 1
             elif team != team_id:
-                logger.log("9")
+                logger.log("10")
                 enemy_harmed += 1
         print("third for done")
     else:
-        logger.log("10")
+        logger.log("11")
         print("len blocks = false, no blocks found")
         total_blocks = 0
 
     # heuristic checks start here
     # if they didn't break any blocks at all, they probably aren't griefing.
     if total_blocks == 0:
-        logger.log("11")
+        logger.log("12")
         print("no blocks, ending")
         return 0
     # checks on team blocks destroyed
     if team_blocks > 0 and team_blocks <= 5:
-        logger.log("12")
+        logger.log("13")
         gscore += 1
     elif team_blocks > 5 and team_blocks <= 10:
-        logger.log("13")
+        logger.log("14")
         gscore += 2
     elif team_blocks > 10 and team_blocks <= 25:
-        logger.log("14")
+        logger.log("15")
         gscore += 4
     elif team_blocks > 25 and team_blocks <= 50:
-        logger.log("15")
+        logger.log("16")
         gscore += 6
     elif team_blocks > 50:
-        logger.log("16")
+        logger.log("17")
         gscore += 10
     print("team blocks set")
     # team / total ratio checks
     if total_blocks != 0:
-        logger.log("17")
+        logger.log("18")
         ttr = (float(team_blocks) / float(total_blocks)) * 100
     if ttr > 5 and ttr <= 20:
-        logger.log("18")
+        logger.log("19")
         gscore += 1
     elif ttr > 20 and ttr <= 50:
-        logger.log("19")
+        logger.log("20")
         gscore += 2
     elif ttr > 50 and ttr <= 80:
-        logger.log("20")
+        logger.log("21")
         gscore += 3
     elif ttr > 80:
-        logger.log("21")
+        logger.log("22")
         gscore += 4
     print("ttr set")
     # teammates harmed check
     if team_harmed == 1:
-        logger.log("22")
+        logger.log("23")
         gscore += 1
     elif team_harmed > 2 and team_harmed <= 4:
-        logger.log("23")
+        logger.log("24")
         gscore += 3
     elif team_harmed > 4:
-        logger.log("24")
+        logger.log("25")
         gscore += 6
     print("team harmed set")
     print(
@@ -215,7 +215,7 @@ def score_grief(connection, player, time=None):  # 302 = blue (0), #303 = green 
          ttr,
          enemy_harmed,
          gscore))
-    logger.log("25")
+    logger.log("26")
     return gscore
 
 
