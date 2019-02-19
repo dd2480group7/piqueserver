@@ -1,5 +1,6 @@
 from pyspades.common import (coordinates, to_coordinates)
 from piqueserver.commands import command, CommandError, get_player
+import piqueserver.scripts.logger as logger
 
 
 @command(admin_only=True)
@@ -45,14 +46,16 @@ def move(connection, *args):
 
 
 def do_move(connection, args, silent=False):
+    logger.log("1")
     position = None
     player = None
     arg_count = len(args)
 
-    initial_index = 1 if arg_count == 2 or arg_count == 4 else 0
+    initial_index = logger.log("2", 1) if arg_count == 2 or arg_count == 4 else logger.log("3", 0)
 
     # the target position is a <sector>
     if arg_count == 1 or arg_count == 2:
+        logger.log("4")
         x, y = coordinates(args[initial_index])
         x += 32
         y += 32
@@ -60,21 +63,30 @@ def do_move(connection, args, silent=False):
         position = args[initial_index].upper()
     # the target position is <x> <y> <z>
     elif arg_count == 3 or arg_count == 4:
+        logger.log("5")
         x = min(max(0, int(args[initial_index])), 511)
         y = min(max(0, int(args[initial_index + 1])), 511)
         z = min(max(0, int(args[initial_index + 2])), connection.protocol.map.get_height(x, y) - 2)
         position = '%d %d %d' % (x, y, z)
     else:
+        logger.log("6")
         raise ValueError('Wrong number of parameters!')
 
     # no player specified
     if arg_count == 1 or arg_count == 3:
+        logger.log("7")
         if connection not in connection.protocol.players:
+            logger.log("8")
             raise ValueError()
+        else:
+            logger.log("9")
         player = connection.name
     # player specified
     elif arg_count == 2 or arg_count == 4:
+        logger.log("10")
         player = args[0]
+    else:
+        logger.log("11")
 
     player = get_player(connection.protocol, player)
 
@@ -82,16 +94,20 @@ def do_move(connection, args, silent=False):
 
     player.set_location((x, y, z))
     if connection is player:
+        logger.log("12")
         message = ('%s ' + ('silently ' if silent else '') + 'teleported to '
                    'location %s')
         message = message % (player.name, position)
     else:
+        logger.log("13")
         message = ('%s ' + ('silently ' if silent else '') + 'teleported %s '
                    'to location %s')
         message = message % (connection.name, player.name, position)
     if silent:
+        logger.log("14")
         connection.protocol.irc_say('* ' + message)
     else:
+        logger.log("15")
         connection.protocol.send_chat(message, irc=True)
 
 
