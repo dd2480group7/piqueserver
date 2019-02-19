@@ -146,3 +146,28 @@ class BaseConnectionTest(unittest.TestCase):
         ply.z = 1
         input_ply = contained.PositionData()
         self.assertEqual(ply.on_position_update_recieved(input_ply), None)  # Since we've not updated position, this should be equal.
+
+    def test_grenade_exploded(self):
+        ply = player.ServerConnection(Mock(), Mock())
+        ply.world_object = Mock()
+        ply.world_object.create_object()
+        ply.world_object.position.x = 1
+        ply.world_object.position.y = 1
+        ply.world_object.position.z = 1
+        ply.world_object.velocity.x = 0
+        ply.world_object.velocity.y = 0
+        ply.world_object.velocity.z = 1
+        grenade = ply.world_object.protocol.world.create_object(
+            ply.world_object.world.Grenade, contained.value,
+            ply.world_object.Vertex3(*contained.position), None,
+            ply.world_object.Vertex3(*contained.velocity), ply.world_object.grenade_exploded)
+        ply.grenades = 1
+        ply.set_team(1)
+        ply.set_location(2)
+        self.assertEqual(ply.grenade_exploded(grenade), None) #No hp set.
+        ply.set_hp(10)
+        self.assertTrue(ply.grenade_exploded(grenade))
+
+
+
+
