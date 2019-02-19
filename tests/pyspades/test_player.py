@@ -25,9 +25,9 @@ class BaseConnectionTest(unittest.TestCase):
             ex_ply = contained.ExistingPlayer()
             ex_ply.team = team.id
             ply.on_new_player_recieved(ex_ply)
-
             self.assertEqual(ply.team, team)
 
+    #testing if Hp is none as well as the change of jump dependent on velocity
     def test_on_input_data_recieved1(self):
         ply = player.ServerConnection(Mock(), Mock())
         input_cont = contained.InputData()
@@ -45,7 +45,7 @@ class BaseConnectionTest(unittest.TestCase):
         ply.on_input_data_recieved(input_cont)
         self.assertFalse(input_cont.jump) #should have changed to false due to velocity
 
-    #testing last return None
+     #testing filter visibility data
     def test_on_input_data_recieved2(self):
         ply = player.ServerConnection(Mock(), Mock())
         ply.filter_visibility_data = True
@@ -57,7 +57,7 @@ class BaseConnectionTest(unittest.TestCase):
         self.assertEqual(ply.on_input_data_recieved(input_cont), None)
 
 
-    #testing to build a block
+    #testing when hp is none and when a block is built. Placing a block results in player having fewer blocks
     def test_on_block_action_received1(self):
         ply = player.ServerConnection(Mock(), Mock())
         block_cont = contained.BlockAction()
@@ -77,7 +77,7 @@ class BaseConnectionTest(unittest.TestCase):
         self.assertEqual(ply.blocks, 9) #a block has been placed
 
 
-    #testing to destroy block
+    #testing to destroy block by two means, simple destroy as well as spade destroy
     def test_on_block_action_received2(self):
 
         def destroyA(x, y, z):
@@ -108,13 +108,12 @@ class BaseConnectionTest(unittest.TestCase):
         self.assertEqual(ply.total_blocks_removed, 6) #3 blocks destroyed with SPADE_DESTROY
         ply.protocol.map.destroy_point = destroyB
         ply.on_block_action_recieved(block_cont)
-        self.assertEqual(ply.total_blocks_removed, 6) #no block removed
+        self.assertEqual(ply.total_blocks_removed, 6) #no block removed due to map destroy point none
 
-
-    #test1 in on position update recieved, Return None
+    # test1 in on position update recieved, Return None
     def test_on_position_update_received1(self):
         ply = player.ServerConnection(Mock(), Mock())
-        ply.world_object= Mock()
+        ply.world_object = Mock()
         ply.set_hp(10)
         ply.player_id = 1
         input_ply = contained.PositionData()
@@ -123,12 +122,13 @@ class BaseConnectionTest(unittest.TestCase):
         ply.z = 1
         self.assertEqual(ply.on_position_update_recieved(input_ply), None)
 
-    #tests to set last_position_update to other than default value None
+    # tests to set last_position_update to other than default value None
     def test_on_position_update_received2(self):
         ply = player.ServerConnection(Mock(), Mock())
         ply.world_object = Mock()
         ply.set_hp(10)
         ply.last_position_update = 1
+        ply.filter_visibility_data = True
         input_ply = contained.PositionData()
         ply.x = 1
         ply.y = 1
@@ -150,24 +150,35 @@ class BaseConnectionTest(unittest.TestCase):
     def test_grenade_exploded(self):
         ply = player.ServerConnection(Mock(), Mock())
         ply.world_object = Mock()
-        ply.world_object.create_object()
+        #ply.world_object.create_object()
         ply.world_object.position.x = 1
         ply.world_object.position.y = 1
         ply.world_object.position.z = 1
         ply.world_object.velocity.x = 0
         ply.world_object.velocity.y = 0
         ply.world_object.velocity.z = 1
-        grenade = ply.world_object.protocol.world.create_object(
-            ply.world_object.world.Grenade, contained.value,
-            ply.world_object.Vertex3(*contained.position), None,
-            ply.world_object.Vertex3(*contained.velocity), ply.world_object.grenade_exploded)
-        ply.grenades = 1
-        ply.set_team(1)
-        ply.set_location(2)
-        self.assertEqual(ply.grenade_exploded(grenade), None) #No hp set.
-        ply.set_hp(10)
-        self.assertTrue(ply.grenade_exploded(grenade))
+        grenade = ply.world_object.create_object(
+            ply.world_object.world.Grenade, ply.world_object.value,
+            ply.world_object.Vertex3(*(1,2,3)),None,
+            ply.world_object.Vertex3(*(0,0,1)), False)
 
+        self.assertEqual(ply.grenade_exploded(grenade), None) # No name set.
 
+    def test_grenade_exploded2(self):
+        ply = player.ServerConnection(Mock(), Mock())
+        ply.world_object = Mock()
+        #grenade= Mock()
 
-
+        grenade = ply.world_object.create_object(
+            ply.world_object.world.Grenade, ply.world_object.value,
+            ply.world_object.Vertex3(*(1,2,3)),None,
+            ply.world_object.Vertex3(*(0,0,1)), False)
+        grenade.team = "test"
+        ply.name = "Erik"
+        ply.team = "DIF"
+        ply.team = Mock()
+        ply.team.spectator = False
+        grenade.position.x = 1
+        grenade.position.y = 1
+        grenade.position.z = 1
+        self.assertEqual(ply.grenade_exploded(grenade), None)

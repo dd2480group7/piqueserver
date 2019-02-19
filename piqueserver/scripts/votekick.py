@@ -33,6 +33,7 @@ from twisted.internet.reactor import seconds
 from piqueserver.scheduler import Scheduler
 from piqueserver.commands import command, admin, get_player, join_arguments, CommandError
 from piqueserver.config import config
+import piqueserver.scripts.logger as logger
 
 REQUIRE_REASON = True
 
@@ -182,26 +183,38 @@ class Votekick(object):
 
     @classmethod
     def start(cls, instigator, victim, reason=None):
+        logger.log("1")
         protocol = instigator.protocol
         last_votekick = instigator.last_votekick
-        reason = reason.strip() if reason else None
+        reason = logger.log("2", reason.strip()) if reason else logger.log("3", None)
         if protocol.votekick:
+            logger.log("4")
             raise VotekickFailure(S_IN_PROGRESS)
         elif instigator is victim:
+            logger.log("5")
             raise VotekickFailure(S_SELF_VOTEKICK)
         elif protocol.get_required_votes() <= 0:
+            logger.log("6")
             raise VotekickFailure(S_NOT_ENOUGH_PLAYERS)
         elif victim.admin or victim.rights.cancel or victim.local:
+            logger.log("7")
             raise VotekickFailure(S_VOTEKICK_IMMUNE)
         elif not instigator.admin and (last_votekick is not None and
                                        seconds() - last_votekick < cls.interval):
+            logger.log("8")
             raise VotekickFailure(S_NOT_YET)
         elif REQUIRE_REASON and not reason:
+            logger.log("9")
             raise VotekickFailure(S_NEED_REASON)
+        else:
+            logger.log("10")
 
         result = protocol.on_votekick_start(instigator, victim, reason)
         if result is not None:
+            logger.log("11")
             raise VotekickFailure(result)
+        else:
+            logger.log("12")
 
         reason = reason or S_DEFAULT_REASON
         return cls(instigator, victim, reason)

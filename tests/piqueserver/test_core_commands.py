@@ -7,9 +7,7 @@ import piqueserver.core_commands.movement as Movement
 
 class DummyTest(unittest.TestCase):
 
-    def setup(self):
-        conn = Mock()
-        conn.protocol = Mock()
+
     def test_get_ban_argument(self):
         conn = Mock()
         conn.protocol = Mock()
@@ -32,7 +30,7 @@ class DummyTest(unittest.TestCase):
         self.assertEqual(dur, None)
         self.assertEqual(reas, "you")
 
-    def test_do_movement_params(self):
+    def test_do_move_params(self):
         '''
         Requirement: ValueError is raised if do_move is called with an erroneous
         amount of parameters.
@@ -47,7 +45,7 @@ class DummyTest(unittest.TestCase):
             Movement.do_move(conn, [player, 0 , 0, 0, 0])
         self.assertEquals(str(e.exception), "Wrong number of parameters!")
 
-    def test_do_movement_player(self):
+    def test_do_move_player(self):
         '''
         Requirement: ValueError is raised if do_move is passed a connection-object
         that is not recognized.
